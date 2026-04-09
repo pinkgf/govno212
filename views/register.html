@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - Техникум</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .register-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo h1 {
+            color: #667eea;
+            font-size: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn-register {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .btn-register:hover {
+            transform: translateY(-2px);
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+        }
+        
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .message {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .message.error {
+            background: #fee;
+            color: #c33;
+            display: block;
+        }
+        
+        .message.success {
+            background: #efe;
+            color: #3c3;
+            display: block;
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .strength-weak { color: #e74c3c; }
+        .strength-medium { color: #f39c12; }
+        .strength-strong { color: #27ae60; }
+        
+        .requirements {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .requirements ul {
+            margin-left: 1.5rem;
+            margin-top: 0.25rem;
+        }
+        
+        .requirement {
+            color: #999;
+        }
+        
+        .requirement.valid {
+            color: #27ae60;
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="logo">
+            <h1>🏫 Техникум</h1>
+            <p>Создайте новый аккаунт</p>
+        </div>
+        
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="full_name">ФИО *</label>
+                <input type="text" id="full_name" name="full_name" required placeholder="Иванов Иван Иванович">
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Логин *</label>
+                <input type="text" id="username" name="username" required placeholder="от 3 до 20 символов">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" required placeholder="example@mail.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Пароль *</label>
+                <input type="password" id="password" name="password" required placeholder="минимум 6 символов">
+                <div id="passwordStrength" class="password-strength"></div>
+                <div class="requirements">
+                    <small>Пароль должен содержать:</small>
+                    <ul>
+                        <li id="req-length" class="requirement">✗ Минимум 6 символов</li>
+                        <li id="req-digit" class="requirement">✗ Хотя бы одну цифру</li>
+                        <li id="req-letter" class="requirement">✗ Хотя бы одну букву</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_password">Подтверждение пароля *</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            
+            <button type="submit" class="btn-register">Зарегистрироваться</button>
+        </form>
+        
+        <div class="login-link">
+            Уже есть аккаунт? <a href="/login">Войти</a>
+        </div>
+        
+        <div id="message" class="message"></div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('registerForm');
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirm_password');
+        
+        // Проверка силы пароля
+        function checkPasswordStrength(password) {
+            const hasDigit = /\d/.test(password);
+            const hasLetter = /[a-zA-Zа-яА-Я]/.test(password);
+            const isLongEnough = password.length >= 6;
+            
+            // Обновляем требования
+            document.getElementById('req-length').innerHTML = (isLongEnough ? '✓' : '✗') + ' Минимум 6 символов';
+            document.getElementById('req-digit').innerHTML = (hasDigit ? '✓' : '✗') + ' Хотя бы одну цифру';
+            document.getElementById('req-letter').innerHTML = (hasLetter ? '✓' : '✗') + ' Хотя бы одну букву';
+            
+            if (isLongEnough && hasDigit && hasLetter) {
+                document.getElementById('req-length').classList.add('valid');
+                document.getElementById('req-digit').classList.add('valid');
+                document.getElementById('req-letter').classList.add('valid');
+            }
+            
+            // Определяем силу пароля
+            let strength = 0;
+            if (isLongEnough) strength++;
+            if (hasDigit) strength++;
+            if (hasLetter) strength++;
+            
+            const strengthDiv = document.getElementById('passwordStrength');
+            if (password.length === 0) {
+                strengthDiv.innerHTML = '';
+            } else if (strength === 1) {
+                strengthDiv.innerHTML = '<span class="strength-weak">⚠️ Слабый пароль</span>';
+            } else if (strength === 2) {
+                strengthDiv.innerHTML = '<span class="strength-medium">⚠️ Средний пароль</span>';
+            } else if (strength === 3) {
+                strengthDiv.innerHTML = '<span class="strength-strong">✓ Сильный пароль</span>';
+            }
+            
+            return strength === 3;
+        }
+        
+        passwordInput.addEventListener('input', () => {
+            checkPasswordStrength(passwordInput.value);
+        });
+        
+        // Отправка формы
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const full_name = document.getElementById('full_name').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirm_password = document.getElementById('confirm_password').value;
+            
+            // Валидация
+            if (!full_name || !username || !email || !password) {
+                showMessage('Заполните все поля', 'error');
+                return;
+            }
+            
+            if (username.length < 3) {
+                showMessage('Логин должен быть не менее 3 символов', 'error');
+                return;
+            }
+            
+            if (username.length > 20) {
+                showMessage('Логин не должен превышать 20 символов', 'error');
+                return;
+            }
+            
+            if (!email.includes('@') || !email.includes('.')) {
+                showMessage('Введите корректный email', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('Пароль должен быть не менее 6 символов', 'error');
+                return;
+            }
+            
+            if (password !== confirm_password) {
+                showMessage('Пароли не совпадают', 'error');
+                return;
+            }
+            
+            // Проверка силы пароля
+            const hasDigit = /\d/.test(password);
+            const hasLetter = /[a-zA-Zа-яА-Я]/.test(password);
+            if (!hasDigit || !hasLetter) {
+                showMessage('Пароль должен содержать хотя бы одну цифру и одну букву', 'error');
+                return;
+            }
+            
+            // Отправка запроса
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ full_name, username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('Регистрация успешна! Перенаправление на вход...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                } else {
+                    showMessage(data.error || 'Ошибка регистрации', 'error');
+                }
+            } catch (error) {
+                showMessage('Ошибка соединения с сервером', 'error');
+            }
+        });
+        
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+                messageDiv.className = 'message';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

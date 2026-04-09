@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет - Техникум</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f0f1a;
+            color: #ffffff;
+        }
+        
+        .navbar {
+            background: rgba(15, 15, 26, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #a8c0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 600;
+        }
+        
+        .user-role {
+            font-size: 0.8rem;
+            color: #a8c0ff;
+        }
+        
+        .logout-btn {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(220, 53, 69, 0.3);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .welcome-card {
+            background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2));
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .welcome-card h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+        
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .course-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .course-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(102,126,234,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .course-header {
+            background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3));
+            padding: 1.2rem;
+        }
+        
+        .course-header h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .course-code {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        
+        .course-body {
+            padding: 1.2rem;
+        }
+        
+        .course-description {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .course-info {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1rem;
+        }
+        
+        .course-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .course-info-label {
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .course-info-value {
+            color: #a8c0ff;
+            font-weight: 500;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+            .user-details {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">🏫 Техникум</a>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar"></div>
+                <div class="user-details">
+                    <span class="user-name" id="userName"></span>
+                    <span class="user-role" id="userRole"></span>
+                </div>
+                <a href="/api/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="welcome-card">
+            <h1 id="welcomeMessage"></h1>
+            <p>Добро пожаловать в ваш личный кабинет</p>
+            <div id="adminPanelLink" style="display: none;">
+                <a href="/admin/db" class="admin-btn">
+                    <i class="fas fa-database"></i>
+                    Управление базой данных
+                </a>
+            </div>
+        </div>
+        
+        <div class="section-title">
+            <i class="fas fa-graduation-cap"></i>
+            Мои курсы
+        </div>
+        <div id="coursesList" class="courses-grid">
+            <div class="empty-state">
+                <i class="fas fa-spinner fa-pulse"></i>
+                <p>Загрузка курсов...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/user');
+                if (!response.ok) {
+                    window.location.href = '/login';
+                    return null;
+                }
+                const user = await response.json();
+                return user;
+            } catch (error) {
+                window.location.href = '/login';
+                return null;
+            }
+        }
+        
+        async function loadCourses() {
+            try {
+                const response = await fetch('/api/my-courses');
+                const courses = await response.json();
+                
+                const coursesList = document.getElementById('coursesList');
+                
+                if (!courses || courses.length === 0) {
+                    coursesList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-book-open"></i>
+                            <p>У вас пока нет курсов</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                coursesList.innerHTML = courses.map(course => `
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h3>${escapeHtml(course.course_name)}</h3>
+                            <div class="course-code">${course.course_code}</div>
+                        </div>
+                        <div class="course-body">
+                            <div class="course-description">${escapeHtml(course.description)}</div>
+                            <div class="course-info">
+                                <div class="course-info-item">
+                                    <span class="course-info-label">
+                                        <i class="fas fa-chalkboard-user"></i> Преподаватель:
+                                    </span>
+                                    <span class="course-info-value">${course.teacher_name || 'Не назначен'}</span>
+                                </div>
+                                <div class="course-info-item">
+                                    <span class="course-info-label">
+                                        <i class="fas fa-users"></i> Макс. студентов:
+                                    </span>
+                                    <span class="course-info-value">${course.max_students}</span>
+                                </div>
+                                <div class="course-info-item">
+                                    <span class="course-info-label">
+                                        <i class="fas fa-calendar-alt"></i> Расписание:
+                                    </span>
+                                    <span class="course-info-value">${course.schedule}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                document.getElementById('coursesList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Ошибка загрузки курсов</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        async function init() {
+            const user = await checkAuth();
+            if (user) {
+                document.getElementById('userName').textContent = user.full_name;
+                document.getElementById('userAvatar').textContent = user.full_name.charAt(0);
+                
+                const roleText = user.role === 'admin' ? 'Администратор' : 
+                                user.role === 'teacher' ? 'Преподаватель' : 'Студент';
+                document.getElementById('userRole').textContent = roleText;
+                document.getElementById('welcomeMessage').textContent = `Здравствуйте, ${user.full_name}!`;
+                
+                if (user.role === 'admin') {
+                    document.getElementById('adminPanelLink').style.display = 'block';
+                }
+                
+                await loadCourses();
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ панель - Управление БД</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f0f1a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+        
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveDots 20s linear infinite;
+        }
+        
+        @keyframes moveDots {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        /* Навбар */
+        .navbar {
+            background: rgba(15, 15, 26, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #a8c0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Заголовок */
+        .page-header {
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #fff, #a8c0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Секция таблиц */
+        .tables-section {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .tables-section h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .table-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .table-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .table-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .table-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+        }
+        
+        /* Статистика */
+        .stats-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .stats-info {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stat-label {
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .stat-value {
+            font-weight: 700;
+            color: #a8c0ff;
+        }
+        
+        .add-btn {
+            background: linear-gradient(135deg, #27ae60, #219a52);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(39, 174, 96, 0.3);
+        }
+        
+        /* Таблица данных */
+        .data-table {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow-x: auto;
+        }
+        
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .data-table th:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .data-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .data-table tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .edit-btn, .delete-btn {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .edit-btn {
+            background: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+            border: 1px solid rgba(241, 196, 15, 0.3);
+        }
+        
+        .edit-btn:hover {
+            background: rgba(241, 196, 15, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .delete-btn {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+        
+        .delete-btn:hover {
+            background: rgba(231, 76, 60, 0.3);
+            transform: scale(1.05);
+        }
+        
+        /* SQL секция */
+        .sql-section {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sql-section h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sql-textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            color: #a8c0ff;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            resize: vertical;
+        }
+        
+        .sql-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .sql-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sql-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .sql-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+        
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: rgba(15, 15, 26, 0.95);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .modal-content input,
+        .modal-content textarea,
+        .modal-content select {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-content input:focus,
+        .modal-content textarea:focus,
+        .modal-content select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .save-btn {
+            background: linear-gradient(135deg, #27ae60, #219a52);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .cancel-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            .stats-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .data-table {
+                font-size: 0.8rem;
+            }
+            .data-table th, .data-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/dashboard" class="logo">
+                <i class="fas fa-database"></i> AdminPanel
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Дашборд</a>
+                <a href="/"><i class="fas fa-home"></i> Главная</a>
+                <a href="/api/logout"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-database"></i> Админ панель управления БД</h1>
+        </div>
+        
+        <div class="tables-section">
+            <h3><i class="fas fa-table"></i> Таблицы базы данных</h3>
+            <div id="tableButtons" class="table-buttons">
+                <div class="empty-state" style="padding: 1rem;">
+                    <i class="fas fa-spinner fa-pulse"></i> Загрузка таблиц...
+                </div>
+            </div>
+        </div>
+        
+        <div id="statsContainer"></div>
+        
+        <div id="addButtonContainer"></div>
+        
+        <div class="data-table" id="dataTableContainer">
+            <div class="empty-state">
+                <i class="fas fa-click"></i>
+                <p>Выберите таблицу для просмотра данных</p>
+            </div>
+        </div>
+        
+        <div class="sql-section">
+            <h3><i class="fas fa-terminal"></i> Выполнить SQL запрос</h3>
+            <textarea id="sqlQuery" class="sql-textarea" rows="4" placeholder="SELECT * FROM users LIMIT 10"></textarea>
+            <button class="sql-btn" onclick="executeSQL()">
+                <i class="fas fa-play"></i> Выполнить
+            </button>
+            <div id="sqlResult" class="sql-result" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle"><i class="fas fa-edit"></i> Добавить запись</h3>
+            <form id="editForm">
+                <div id="formFields"></div>
+                <div class="modal-buttons">
+                    <button type="submit" class="save-btn"><i class="fas fa-save"></i> Сохранить</button>
+                    <button type="button" class="cancel-btn" onclick="closeModal()"><i class="fas fa-times"></i> Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let currentTable = '';
+        let currentData = [];
+        let editingId = null;
+        let currentStructure = [];
+        
+        async function loadTables() {
+            try {
+                const response = await fetch('/api/admin/tables');
+                const tables = await response.json();
+                
+                const container = document.getElementById('tableButtons');
+                if (tables.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-database"></i><p>Нет таблиц</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = tables.map(table => `
+                    <button class="table-btn" onclick="loadTableData('${table}')">
+                        <i class="fas fa-table"></i> ${table}
+                    </button>
+                `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('tableButtons').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Ошибка загрузки</p></div>';
+            }
+        }
+        
+        async function loadTableData(tableName) {
+            currentTable = tableName;
+            
+            document.querySelectorAll('.table-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(tableName)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            try {
+                const response = await fetch(`/api/admin/table/${tableName}`);
+                const data = await response.json();
+                currentData = data.rows;
+                currentStructure = data.structure || [];
+                
+                document.getElementById('statsContainer').innerHTML = `
+                    <div class="stats-card">
+                        <div class="stats-info">
+                            <div class="stat-item">
+                                <i class="fas fa-table"></i>
+                                <span class="stat-label">Таблица:</span>
+                                <span class="stat-value">${tableName}</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-database"></i>
+                                <span class="stat-label">Записей:</span>
+                                <span class="stat-value">${data.count}</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-columns"></i>
+                                <span class="stat-label">Колонок:</span>
+                                <span class="stat-value">${currentStructure.length}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('addButtonContainer').innerHTML = `
+                    <button class="add-btn" onclick="showAddModal()">
+                        <i class="fas fa-plus"></i> Добавить запись
+                    </button>
+                `;
+                
+                displayTable(data.rows);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('dataTableContainer').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Ошибка загрузки данных</p></div>';
+            }
+        }
+        
+        function displayTable(rows) {
+            const container = document.getElementById('dataTableContainer');
+            
+            if (!rows || rows.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>Нет данных в таблице</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const columns = Object.keys(rows[0]);
+            
+            let html = '<div style="overflow-x: auto;">';
+            html += '<table>';
+            html += '<thead><tr>';
+            columns.forEach(col => {
+                html += `<th onclick="sortTable('${col}')"><i class="fas fa-sort"></i> ${col}</th>`;
+            });
+            html += '<th><i class="fas fa-cog"></i> Действия</th>';
+            html += '</tr></thead><tbody>';
+            
+            rows.forEach(row => {
+                html += '<tr>';
+                columns.forEach(col => {
+                    let value = row[col];
+                    if (value === null) value = '<span style="color: rgba(255,255,255,0.3);">NULL</span>';
+                    if (col === 'password_hash') value = '<span style="font-family: monospace;">••••••••</span>';
+                    if (col === 'photo_url' && value) value = '<i class="fas fa-image"></i> Фото';
+                    html += `<td>${value}</td>`;
+                });
+                html += `<td class="actions">
+                            <button class="edit-btn" onclick="editRecord(${row.id})" title="Редактировать">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-btn" onclick="deleteRecord(${row.id})" title="Удалить">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                         </td>`;
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+        
+        function sortTable(column) {
+            const sorted = [...currentData].sort((a, b) => {
+                let aVal = a[column] || '';
+                let bVal = b[column] || '';
+                return String(aVal).localeCompare(String(bVal));
+            });
+            displayTable(sorted);
+        }
+        
+        function showAddModal() {
+            editingId = null;
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Добавить запись в ' + currentTable;
+            
+            let fieldsHtml = '';
+            currentStructure.forEach(field => {
+                if (field.Field !== 'id' && field.Field !== 'created_at' && field.Field !== 'last_login') {
+                    const required = field.Null === 'NO' ? 'required' : '';
+                    fieldsHtml += `
+                        <label style="display: block; margin-bottom: 0.5rem; color: rgba(255,255,255,0.7);">
+                            ${field.Field}:
+                        </label>
+                        <input type="text" name="${field.Field}" placeholder="${field.Field}" ${required}>
+                    `;
+                }
+            });
+            
+            document.getElementById('formFields').innerHTML = fieldsHtml;
+            document.getElementById('modal').style.display = 'flex';
+        }
+        
+        async function editRecord(id) {
+            editingId = id;
+            const record = currentData.find(r => r.id === id);
+            if (!record) return;
+            
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Редактировать запись #' + id;
+            
+            let fieldsHtml = '';
+            currentStructure.forEach(field => {
+                if (field.Field !== 'id' && field.Field !== 'created_at' && field.Field !== 'last_login') {
+                    let value = record[field.Field] || '';
+                    if (value === null) value = '';
+                    fieldsHtml += `
+                        <label style="display: block; margin-bottom: 0.5rem; color: rgba(255,255,255,0.7);">
+                            ${field.Field}:
+                        </label>
+                        <input type="text" name="${field.Field}" value="${value}" ${field.Null === 'NO' ? 'required' : ''}>
+                    `;
+                }
+            });
+            
+            document.getElementById('formFields').innerHTML = fieldsHtml;
+            document.getElementById('modal').style.display = 'flex';
+        }
+        
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {};
+            formData.forEach((value, key) => {
+                if (value.trim()) {
+                    data[key] = value;
+                }
+            });
+            
+            try {
+                let url = `/api/admin/table/${currentTable}`;
+                let method = 'POST';
+                
+                if (editingId) {
+                    url += `/${editingId}`;
+                    method = 'PUT';
+                }
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    alert('✅ Успешно сохранено!');
+                    closeModal();
+                    loadTableData(currentTable);
+                } else {
+                    const error = await response.json();
+                    alert('❌ Ошибка: ' + error.error);
+                }
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        });
+        
+        async function deleteRecord(id) {
+            if (!confirm(`Удалить запись #${id}? Это действие нельзя отменить!`)) return;
+            
+            try {
+                const response = await fetch(`/api/admin/table/${currentTable}/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert('✅ Запись удалена');
+                    loadTableData(currentTable);
+                } else {
+                    const error = await response.json();
+                    alert('❌ Ошибка: ' + error.error);
+                }
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function executeSQL() {
+            const sql = document.getElementById('sqlQuery').value.trim();
+            if (!sql) {
+                alert('Введите SQL запрос');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('sqlResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div style="text-align: center;"><i class="fas fa-spinner fa-pulse"></i> Выполнение...</div>';
+            
+            try {
+                const response = await fetch('/api/admin/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sql: sql })
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    resultDiv.innerHTML = `<div style="color: #ff6b6b;"><i class="fas fa-exclamation-triangle"></i> ${result.error}</div>`;
+                } else {
+                    if (Array.isArray(result.results) && result.results.length > 0) {
+                        const columns = Object.keys(result.results[0]);
+                        let html = '<div style="overflow-x: auto;"><table style="width:100%; border-collapse: collapse;">';
+                        html += '<thead><tr>';
+                        columns.forEach(col => {
+                            html += `<th style="padding: 0.75rem; background: rgba(255,255,255,0.1); text-align: left;">${col}</th>`;
+                        });
+                        html += '</tr></thead><tbody>';
+                        result.results.forEach(row => {
+                            html += '<tr>';
+                            columns.forEach(col => {
+                                let value = row[col];
+                                if (value === null) value = '<span style="color: rgba(255,255,255,0.3);">NULL</span>';
+                                html += `<td style="padding: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">${value}</td>`;
+                            });
+                            html += '</tr>';
+                        });
+                        html += '</tbody></table></div>';
+                        html += `<p style="margin-top: 1rem; color: #51cf66;"><i class="fas fa-check-circle"></i> Найдено записей: ${result.results.length}</p>`;
+                        resultDiv.innerHTML = html;
+                    } else {
+                        resultDiv.innerHTML = `<div style="color: #51cf66;"><i class="fas fa-check-circle"></i> Запрос выполнен. Затронуто строк: ${result.affectedRows || 0}</div>`;
+                    }
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: #ff6b6b;"><i class="fas fa-exclamation-triangle"></i> ${error.message}</div>`;
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            editingId = null;
+        }
+        
+        loadTables();
+    </script>
+</body>
+</html>
